@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Rentabilidad de Acciones</title>
+    <!-- Tailwind CSS CDN para estilos rápidos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Fondo oscuro */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            box-sizing: border-box;
+        }
+        .card {
+            background-color: #2d3748; /* Fondo de tarjeta más oscuro */
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Sombra más oscura */
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .input-group label {
+            font-weight: 600;
+            color: #e2e8f0; /* Texto claro */
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #4a5568; /* Borde oscuro */
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #e2e8f0; /* Texto claro en input */
+            background-color: #2d3748; /* Fondo de input oscuro */
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea; /* Borde morado al enfocar */
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3); /* Sombra de enfoque */
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #4a5568; /* Línea punteada oscura */
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            font-weight: 600;
+            color: #cbd5e0; /* Texto claro */
+        }
+        .result-value {
+            font-weight: 700;
+            color: #e2e8f0; /* Texto claro */
+            font-size: 1.1rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e2e8f0; /* Título claro */
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea; /* Línea morada bajo el título */
+        }
+        .text-muted {
+            color: #a0aec0; /* Texto tenue claro */
+            font-size: 0.9rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #667eea; /* Morado */
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+        .btn:hover {
+            background-color: #7f9cf5; /* Morado más claro al pasar el ratón */
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+        }
+        /* Colores específicos para resultados */
+        .text-green-600 { color: #68d391; } /* Verde claro para modo oscuro */
+        .text-blue-600 { color: #90cdf4; } /* Azul claro para modo oscuro */
+        .text-red-600 { color: #fc8181; } /* Rojo claro para modo oscuro */
+        .text-indigo-700 { color: #9f7aea; } /* Morado claro para título principal */
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-4">Calculadora de Rentabilidad de Acciones</h1>
+
+        <!-- Sección 1: Precio de Compra -->
+        <div class="section">
+            <h2 class="section-title">1. Precio de Compra</h2>
+            <div class="input-group">
+                <label for="precioCompra">Precio de Compra ($):</label>
+                <input type="number" id="precioCompra" placeholder="Ej: 150.00" step="0.01" class="w-full">
+            </div>
+            <div class="result-item mt-4">
+                <span class="result-label">Comisión del Broker (fija):</span>
+                <span class="result-value text-green-600">$2.00</span>
+            </div>
+        </div>
+
+        <!-- Sección 2: Cálculos Iniciales (Rentabilidades Potenciales) -->
+        <div class="section">
+            <h2 class="section-title">2. Cálculos Potenciales de Venta</h2>
+            <div class="results-container">
+                <div class="result-item">
+                    <span class="result-label">Precio de Venta para +10%:</span>
+                    <span id="plan10" class="result-value">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Precio de Venta para +35%:</span>
+                    <span id="plan35" class="result-value">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Precio de Venta para +65%:</span>
+                    <span id="plan65" class="result-value">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección 3: Precio de Venta -->
+        <div class="section">
+            <h2 class="section-title">3. Registrar Venta</h2>
+            <div class="input-group">
+                <label for="precioVenta">Precio de Venta ($):</label>
+                <input type="number" id="precioVenta" placeholder="Ej: 180.00" step="0.01" class="w-full">
+            </div>
+        </div>
+
+        <!-- Sección 4: Resultados Finales -->
+        <div class="section">
+            <h2 class="section-title">4. Resultados Finales</h2>
+            <div class="results-container">
+                <div class="result-item">
+                    <span class="result-label">Ganancia Neta ($):</span>
+                    <span id="gananciaDolares" class="result-value text-blue-600">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Ganancia Neta (%):</span>
+                    <span id="gananciaPorcentaje" class="result-value text-blue-600">0.00%</span>
+                </div>
+            </div>
+            <p class="text-muted mt-4 text-center">Los cálculos se actualizan automáticamente al ingresar los precios.</p>
+        </div>
+
+        <!-- Sección de Navegación a AppSheet -->
+        <div class="section text-center mt-6">
+            <a href="YOUR_APPSHEET_URL" target="_blank" class="btn">
+                Ir a Mi AppSheet
+            </a>
+            <p class="text-muted mt-2">Haz clic para volver a tu aplicación AppSheet.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Constante para la comisión del broker
+        const BROKER_COMMISSION = 2.00; // $2.00 por cada lado (compra y venta)
+
+        // Obtener referencias a los elementos del DOM
+        const precioCompraInput = document.getElementById('precioCompra');
+        const precioVentaInput = document.getElementById('precioVenta');
+
+        const plan10Span = document.getElementById('plan10');
+        const plan35Span = document.getElementById('plan35');
+        const plan65Span = document.getElementById('plan65');
+
+        const gananciaDolaresSpan = document.getElementById('gananciaDolares');
+        const gananciaPorcentajeSpan = document.getElementById('gananciaPorcentaje');
+
+        /**
+         * Formatea un número a moneda USD.
+         * @param {number} value - El número a formatear.
+         * @returns {string} - El número formateado como moneda.
+         */
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(value);
+        }
+
+        /**
+         * Formatea un número a porcentaje.
+         * @param {number} value - El número a formatear (ej. 0.10 para 10%).
+         * @returns {string} - El número formateado como porcentaje.
+         */
+        function formatPercentage(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'percent',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        /**
+         * Realiza todos los cálculos y actualiza la interfaz.
+         */
+        function updateCalculations() {
+            const precioCompra = parseFloat(precioCompraInput.value) || 0;
+            const precioVenta = parseFloat(precioVentaInput.value) || 0;
+
+            // Cálculos para la Vista 2 (Cálculos Potenciales)
+            if (precioCompra > 0) {
+                // Fórmula solicitada: (precio de compra * porcentaje) + comision
+                plan10Span.textContent = formatCurrency((precioCompra * 1.10) + BROKER_COMMISSION);
+                plan35Span.textContent = formatCurrency((precioCompra * 1.35) + BROKER_COMMISSION);
+                plan65Span.textContent = formatCurrency((precioCompra * 1.65) + BROKER_COMMISSION);
+            } else {
+                plan10Span.textContent = formatCurrency(0);
+                plan35Span.textContent = formatCurrency(0);
+                plan65Span.textContent = formatCurrency(0);
+            }
+
+            // Cálculos para la Vista 4 (Resultados Finales)
+            if (precioCompra > 0 && precioVenta > 0) {
+                // Ganancia Neta ($): precio de venta - precio de compra (sin restar comisiones aquí)
+                const gananciaDolares = precioVenta - precioCompra; 
+                // Ganancia Neta (%): (Ganancia Neta $) / precio de compra (sin restar comisiones aquí)
+                const gananciaPorcentaje = precioCompra === 0 ? 0 : gananciaDolares / precioCompra;
+
+                gananciaDolaresSpan.textContent = formatCurrency(gananciaDolares);
+                gananciaPorcentajeSpan.textContent = formatPercentage(gananciaPorcentaje);
+
+                // Opcional: Cambiar color si hay pérdida
+                if (gananciaDolares < 0) {
+                    gananciaDolaresSpan.classList.remove('text-blue-600');
+                    gananciaDolaresSpan.classList.add('text-red-600');
+                    gananciaPorcentajeSpan.classList.remove('text-blue-600');
+                    gananciaPorcentajeSpan.classList.add('text-red-600');
+                } else {
+                    gananciaDolaresSpan.classList.remove('text-red-600');
+                    gananciaDolaresSpan.classList.add('text-blue-600');
+                    gananciaPorcentajeSpan.classList.remove('text-red-600');
+                    gananciaPorcentajeSpan.classList.add('text-blue-600');
+                }
+
+            } else {
+                gananciaDolaresSpan.textContent = formatCurrency(0);
+                gananciaPorcentajeSpan.textContent = formatPercentage(0);
+                gananciaDolaresSpan.classList.remove('text-red-600');
+                gananciaDolaresSpan.classList.add('text-blue-600');
+                gananciaPorcentajeSpan.classList.remove('text-red-600');
+                gananciaPorcentajeSpan.classList.add('text-blue-600');
+            }
+        }
+
+        // Event Listeners para actualizar los cálculos al cambiar los inputs
+        precioCompraInput.addEventListener('input', updateCalculations);
+        precioVentaInput.addEventListener('input', updateCalculations);
+
+        // Ejecutar cálculos iniciales al cargar la página
+        document.addEventListener('DOMContentLoaded', updateCalculations);
+    </script>
+</body>
+</html>
